@@ -864,15 +864,19 @@ class TelegramPollingService:
     def process_updates(self, updates: List[Dict]) -> int:
         """处理更新列表"""
         processed_count = 0
-        
+        i = 0
         for update in updates:
             try:
+                i += 1
+                print(f"[DBG] 处理更新 {i}/{len(updates)}")
+                print(f"[DBG] 更新内容：{update}")
                 # 只处理callback_query
                 if "callback_query" in update:
                     callback_query = update["callback_query"]
-                    
+                    print(f"[DBG] 回调查询：{callback_query}")
                     # 检查是否是分页相关的回调
                     callback_data = callback_query.get("data", "")
+                    print(f"[DBG] callback_data: {callback_data}")
                     if callback_data.startswith("page_"):
                         success = handle_telegram_callback(
                             self.bot_token, callback_query, self.proxy_url
@@ -911,6 +915,7 @@ class TelegramPollingService:
                     updates = self.get_updates()
                     
                     if updates:
+                        print("[DBG] updates length:", len(updates))
                         processed = self.process_updates(updates)
                         if processed > 0:
                             print(f"本轮处理了 {processed} 个分页回调")
