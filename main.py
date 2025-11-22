@@ -873,7 +873,7 @@ class TelegramPollingService:
                 # 只处理callback_query
                 if "callback_query" in update:
                     callback_query = update["callback_query"]
-                    print(f"[DBG] 回调查询：{callback_query}")
+                    # print(f"[DBG] 回调查询：{callback_query}")
                     # 检查是否是分页相关的回调
                     callback_data = callback_query.get("data", "")
                     print(f"[DBG] callback_data: {callback_data}")
@@ -4296,13 +4296,22 @@ def send_to_telegram(
     )
     
     if message_id:
+        # 更新消息内容
+        success = edit_telegram_message_with_pagination(
+            bot_token, chat_id, message_id, pages, 0, proxy_url
+        )
+        if success:
+            print(f"[DBG] 更新按钮callback data成功")
+        else:
+            print(f"[DBG] 更新按钮callback data失败")
         # 保存分页状态（仅在多页时）
         if len(pages) > 1:
             pagination_manager = TelegramPaginationManager()
             pagination_manager.save_pagination_state(
                 chat_id, message_id, pages, 0, report_type
             )
-            
+            # 编辑第一页消息，将messageid嵌入按钮
+
             # 检查是否需要自动启动polling
             if pagination_config.get("auto_start_polling", False):
                 try:
